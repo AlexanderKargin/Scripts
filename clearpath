@@ -1,0 +1,44 @@
+# Scripts
+#!/bin/bash
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "This script scans PATH or specific directories for executable files"
+	echo "Examples o using:"
+	echo "$0 -h/--help (for help)"
+	echo "$0"
+	echo "$0 /bin:/usr/games:/usr/bin"
+    exit 0
+elif [ -z "$1" ]
+then
+	path="$PATH";
+elif [[ "$1" =~ ^([\/][A-Za-z0-9 _-]+:?)+$ ]]
+then
+	path="$1";
+else
+	echo "write the directory correctly";
+fi
+
+
+function isThereFile {
+find "$1" -type f | while read File; do
+		if [[ -x "$File" ]]; then
+			echo "true"
+			return;
+		fi		
+	done
+}
+
+
+result=""
+IFS=:
+for dir in $path; do
+	isempty=$( isThereFile "$dir" )
+	#echo $isempty
+	if [ "$isempty" == "true" ]; then
+            if [ -n "$result" ]; then
+                result="$result:"
+            fi
+            result="$result$dir"
+	fi
+done
+echo "$result"
